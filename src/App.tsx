@@ -15,19 +15,23 @@ interface FormCreateUpdateProps {
   initialData?: FormData; // Datos iniciales opcionales para actualizar
 }
 
-export default function FormCreateUpdate({ initialData }: FormCreateUpdateProps) {
+export default function FormCreateUpdate({
+  initialData,
+}: FormCreateUpdateProps) {
   const defaultData: FormData = {
-    tipo_id: "Cedula",
-    id: "1",
-    nombre_1: "Jose",
-    nombre_2: "Alfredo",
-    apellido_1: "Obeso",
-    apellido_2: "Lora",
-    sexo: "Masculino",
-    fecha_de_nacimiento: "2025-01-28",
+    tipo_id: "",
+    id: "",
+    nombre_1: "",
+    nombre_2: "",
+    apellido_1: "",
+    apellido_2: "",
+    sexo: "",
+    fecha_de_nacimiento: "",
   };
 
-  const [formData, setFormData] = useState<FormData>(initialData || defaultData);
+  const [formData, setFormData] = useState<FormData>(
+    initialData || defaultData
+  );
 
   useEffect(() => {
     if (initialData) {
@@ -35,14 +39,23 @@ export default function FormCreateUpdate({ initialData }: FormCreateUpdateProps)
     }
   }, [initialData]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(initialData ? "Actualizando registro:" : "Creando nuevo registro:", formData);
-    alert(initialData ? "Registro actualizado con éxito" : "Registro creado con éxito");
+    console.log(
+      initialData ? "Actualizando registro:" : "Creando nuevo registro:",
+      formData
+    );
+    alert(
+      initialData
+        ? "Registro actualizado con éxito"
+        : "Registro creado con éxito"
+    );
   };
 
   return (
@@ -53,7 +66,9 @@ export default function FormCreateUpdate({ initialData }: FormCreateUpdateProps)
       <form onSubmit={handleSubmit} className="mt-4 space-y-4">
         {/* Tipo de identificación */}
         <div>
-          <label className="block text-sm font-medium text-gray-600">Tipo de Identificación</label>
+          <label className="block text-sm font-medium text-gray-600">
+            Tipo de Identificación
+          </label>
           <select
             name="tipo_id"
             value={formData.tipo_id}
@@ -83,7 +98,9 @@ export default function FormCreateUpdate({ initialData }: FormCreateUpdateProps)
         {/* Nombre y Apellidos */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-600">Primer Nombre</label>
+            <label className="block text-sm font-medium text-gray-600">
+              Primer Nombre
+            </label>
             <input
               type="text"
               name="nombre_1"
@@ -94,7 +111,9 @@ export default function FormCreateUpdate({ initialData }: FormCreateUpdateProps)
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-600">Segundo Nombre</label>
+            <label className="block text-sm font-medium text-gray-600">
+              Segundo Nombre
+            </label>
             <input
               type="text"
               name="nombre_2"
@@ -107,7 +126,9 @@ export default function FormCreateUpdate({ initialData }: FormCreateUpdateProps)
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-600">Primer Apellido</label>
+            <label className="block text-sm font-medium text-gray-600">
+              Primer Apellido
+            </label>
             <input
               type="text"
               name="apellido_1"
@@ -118,7 +139,9 @@ export default function FormCreateUpdate({ initialData }: FormCreateUpdateProps)
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-600">Segundo Apellido</label>
+            <label className="block text-sm font-medium text-gray-600">
+              Segundo Apellido
+            </label>
             <input
               type="text"
               name="apellido_2"
@@ -131,7 +154,9 @@ export default function FormCreateUpdate({ initialData }: FormCreateUpdateProps)
 
         {/* Sexo */}
         <div>
-          <label className="block text-sm font-medium text-gray-600">Sexo</label>
+          <label className="block text-sm font-medium text-gray-600">
+            Sexo
+          </label>
           <select
             name="sexo"
             value={formData.sexo}
@@ -147,7 +172,9 @@ export default function FormCreateUpdate({ initialData }: FormCreateUpdateProps)
 
         {/* Fecha de Nacimiento */}
         <div>
-          <label className="block text-sm font-medium text-gray-600">Fecha de Nacimiento</label>
+          <label className="block text-sm font-medium text-gray-600">
+            Fecha de Nacimiento
+          </label>
           <input
             type="date"
             name="fecha_de_nacimiento"
@@ -159,10 +186,17 @@ export default function FormCreateUpdate({ initialData }: FormCreateUpdateProps)
         </div>
 
         <div className="flex gap-4">
-          <button type="submit" className="w-full bg-green-500 text-white p-2 rounded-md hover:bg-green-600">
+          <button
+            type="submit"
+            className="w-full bg-green-500 text-white p-2 rounded-md hover:bg-green-600"
+          >
             Crear
           </button>
-          <button type="button" className="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600">
+          <button
+            type="button"
+            onClick={handleSubmit}
+            className="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600"
+          >
             Actualizar
           </button>
         </div>
