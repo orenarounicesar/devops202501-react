@@ -33,11 +33,16 @@ export default function FormCreateUpdate({
     initialData || defaultData
   );
 
+  const [isUpdating, setIsUpdating] = useState<boolean>(initialData !== undefined);
+
+
   useEffect(() => {
     if (initialData) {
       setFormData(initialData);
+      setIsUpdating(true); // Asegura que detecte el modo actualización
     }
   }, [initialData]);
+  
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -47,16 +52,26 @@ export default function FormCreateUpdate({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(
-      initialData ? "Actualizando registro:" : "Creando nuevo registro:",
-      formData
-    );
-    alert(
-      initialData
-        ? "Registro actualizado con éxito"
-        : "Registro creado con éxito"
-    );
+    console.log(isUpdating ? "Actualizando registro:" : "Creando nuevo registro:", formData);
+    alert(isUpdating ? "Registro actualizado correctamente" : "Registro creado con éxito");
   };
+
+  const handleCreate = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsUpdating(false); // Asegura que estamos en modo creación
+    console.log("Creando nuevo registro:", formData);
+    alert("Registro creado con éxito");
+  };
+  
+  const handleUpdate = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsUpdating(true); // Cambia a modo actualización
+    console.log("Actualizando registro:", formData);
+    alert("Registro actualizado correctamente");
+  };
+  
+  
+  
 
   return (
     <div className="max-w-lg mx-auto mt-10 p-6 bg-white shadow-md rounded-lg">
@@ -188,13 +203,14 @@ export default function FormCreateUpdate({
         <div className="flex gap-4">
           <button
             type="submit"
+            onClick={handleCreate} // Asigna la función correcta
             className="w-full bg-green-500 text-white p-2 rounded-md hover:bg-green-600"
           >
             Crear
           </button>
           <button
             type="button"
-            onClick={handleSubmit}
+            onClick={handleUpdate} // Asigna la función correcta
             className="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600"
           >
             Actualizar
