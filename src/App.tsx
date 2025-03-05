@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { usePersonaStore } from "./stora/persona";
+import { Register } from "./interface/persona.interface";
 
 export interface FormData {
   tipo_id: string;
@@ -15,7 +17,11 @@ interface FormCreateUpdateProps {
   initialData?: FormData;
 }
 
-export default function FormCreateUpdate({ initialData }: FormCreateUpdateProps) {
+export default function FormCreateUpdate({
+  initialData,
+}: FormCreateUpdateProps) {
+  const { crear_persona, update_persona } = usePersonaStore(); // Usa el store
+
   const defaultData: FormData = {
     tipo_id: "",
     id: "",
@@ -27,7 +33,9 @@ export default function FormCreateUpdate({ initialData }: FormCreateUpdateProps)
     fecha_de_nacimiento: "",
   };
 
-  const [formData, setFormData] = useState<FormData>(initialData || defaultData);
+  const [formData, setFormData] = useState<FormData>(
+    initialData || defaultData
+  );
   const [isUpdating, setIsUpdating] = useState<boolean>(!!initialData);
 
   useEffect(() => {
@@ -37,18 +45,27 @@ export default function FormCreateUpdate({ initialData }: FormCreateUpdateProps)
     }
   }, [initialData]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isUpdating) {
-      console.log("Actualizando registro:", formData);
-      alert("Registro actualizado correctamente");
-    } else {
-      console.log("Creando nuevo registro:", formData);
-      alert("Registro creado con éxito");
+    const personaData: Register = { ...formData };
+
+    try {
+      if (isUpdating) {
+        await update_persona(personaData);
+        alert("Registro actualizado correctamente");
+      } else {
+        await crear_persona(personaData);
+        alert("Registro creado con éxito");
+      }
+    } catch (error) {
+      console.error("Error en el registro:", error);
+      alert("Ocurrió un error al procesar la solicitud.");
     }
   };
 
@@ -59,7 +76,9 @@ export default function FormCreateUpdate({ initialData }: FormCreateUpdateProps)
       </h2>
       <form onSubmit={handleSubmit} className="mt-4 space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-600">Tipo de Identificación</label>
+          <label className="block text-sm font-medium text-gray-600">
+            Tipo de Identificación
+          </label>
           <select
             name="tipo_id"
             value={formData.tipo_id}
@@ -87,7 +106,9 @@ export default function FormCreateUpdate({ initialData }: FormCreateUpdateProps)
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-600">Primer Nombre</label>
+            <label className="block text-sm font-medium text-gray-600">
+              Primer Nombre
+            </label>
             <input
               type="text"
               name="nombre_1"
@@ -98,7 +119,9 @@ export default function FormCreateUpdate({ initialData }: FormCreateUpdateProps)
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-600">Segundo Nombre</label>
+            <label className="block text-sm font-medium text-gray-600">
+              Segundo Nombre
+            </label>
             <input
               type="text"
               name="nombre_2"
@@ -111,7 +134,9 @@ export default function FormCreateUpdate({ initialData }: FormCreateUpdateProps)
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-600">Primer Apellido</label>
+            <label className="block text-sm font-medium text-gray-600">
+              Primer Apellido
+            </label>
             <input
               type="text"
               name="apellido_1"
@@ -122,7 +147,9 @@ export default function FormCreateUpdate({ initialData }: FormCreateUpdateProps)
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-600">Segundo Apellido</label>
+            <label className="block text-sm font-medium text-gray-600">
+              Segundo Apellido
+            </label>
             <input
               type="text"
               name="apellido_2"
@@ -134,7 +161,9 @@ export default function FormCreateUpdate({ initialData }: FormCreateUpdateProps)
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-600">Sexo</label>
+          <label className="block text-sm font-medium text-gray-600">
+            Sexo
+          </label>
           <select
             name="sexo"
             value={formData.sexo}
@@ -149,7 +178,9 @@ export default function FormCreateUpdate({ initialData }: FormCreateUpdateProps)
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-600">Fecha de Nacimiento</label>
+          <label className="block text-sm font-medium text-gray-600">
+            Fecha de Nacimiento
+          </label>
           <input
             type="date"
             name="fecha_de_nacimiento"
@@ -160,24 +191,21 @@ export default function FormCreateUpdate({ initialData }: FormCreateUpdateProps)
           />
         </div>
 
-        <div className="flex gap-4">
-          {!isUpdating && (
-            <button
-              type="submit"
-              className="w-full bg-green-500 text-white p-2 rounded-md hover:bg-green-600"
-            >
-              Crear
-            </button>
-          )}
-          {isUpdating && (
-            <button
-              type="submit"
-              className="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600"
-            >
-              Actualizar
-            </button>
-          )}
-        </div>
+        <button
+          type="submit"
+          onClick={() => setIsUpdating(false)}
+          className="w-full bg-green-500 text-white p-2 rounded-md hover:bg-green-600"
+        >
+          Registrar
+        </button>
+
+        <button
+          type="submit"
+          onClick={() => setIsUpdating(true)}
+          className="w-full bg-yellow-500 text-white p-2 rounded-md hover:bg-yellow-600"
+        >
+          Actualizar
+        </button>
       </form>
     </div>
   );
