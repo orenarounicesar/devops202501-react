@@ -12,12 +12,10 @@ export interface FormData {
 }
 
 interface FormCreateUpdateProps {
-  initialData?: FormData; // Datos iniciales opcionales para actualizar
+  initialData?: FormData;
 }
 
-export default function FormCreateUpdate({
-  initialData,
-}: FormCreateUpdateProps) {
+export default function FormCreateUpdate({ initialData }: FormCreateUpdateProps) {
   const defaultData: FormData = {
     tipo_id: "",
     id: "",
@@ -29,61 +27,39 @@ export default function FormCreateUpdate({
     fecha_de_nacimiento: "",
   };
 
-  const [formData, setFormData] = useState<FormData>(
-    initialData || defaultData
-  );
-
-  const [isUpdating, setIsUpdating] = useState<boolean>(initialData !== undefined);
-
+  const [formData, setFormData] = useState<FormData>(initialData || defaultData);
+  const [isUpdating, setIsUpdating] = useState<boolean>(!!initialData);
 
   useEffect(() => {
     if (initialData) {
       setFormData(initialData);
-      setIsUpdating(true); // Asegura que detecte el modo actualización
+      setIsUpdating(true);
     }
   }, [initialData]);
-  
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(isUpdating ? "Actualizando registro:" : "Creando nuevo registro:", formData);
-    alert(isUpdating ? "Registro actualizado correctamente" : "Registro creado con éxito");
+    if (isUpdating) {
+      console.log("Actualizando registro:", formData);
+      alert("Registro actualizado correctamente");
+    } else {
+      console.log("Creando nuevo registro:", formData);
+      alert("Registro creado con éxito");
+    }
   };
-
-  const handleCreate = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsUpdating(false); // Asegura que estamos en modo creación
-    console.log("Creando nuevo registro:", formData);
-    alert("Registro creado con éxito");
-  };
-  
-  const handleUpdate = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsUpdating(true); // Cambia a modo actualización
-    console.log("Actualizando registro:", formData);
-    alert("Registro actualizado correctamente");
-  };
-  
-  
-  
 
   return (
     <div className="max-w-lg mx-auto mt-10 p-6 bg-white shadow-md rounded-lg">
       <h2 className="text-center text-xl font-semibold text-gray-700">
-        {initialData ? "Actualizar Registro" : "Crear Registro"}
+        {isUpdating ? "Actualizar Registro" : "Crear Registro"}
       </h2>
       <form onSubmit={handleSubmit} className="mt-4 space-y-4">
-        {/* Tipo de identificación */}
         <div>
-          <label className="block text-sm font-medium text-gray-600">
-            Tipo de Identificación
-          </label>
+          <label className="block text-sm font-medium text-gray-600">Tipo de Identificación</label>
           <select
             name="tipo_id"
             value={formData.tipo_id}
@@ -97,7 +73,6 @@ export default function FormCreateUpdate({
           </select>
         </div>
 
-        {/* ID */}
         <div>
           <label className="block text-sm font-medium text-gray-600">ID</label>
           <input
@@ -110,12 +85,9 @@ export default function FormCreateUpdate({
           />
         </div>
 
-        {/* Nombre y Apellidos */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-600">
-              Primer Nombre
-            </label>
+            <label className="block text-sm font-medium text-gray-600">Primer Nombre</label>
             <input
               type="text"
               name="nombre_1"
@@ -126,9 +98,7 @@ export default function FormCreateUpdate({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-600">
-              Segundo Nombre
-            </label>
+            <label className="block text-sm font-medium text-gray-600">Segundo Nombre</label>
             <input
               type="text"
               name="nombre_2"
@@ -141,9 +111,7 @@ export default function FormCreateUpdate({
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-600">
-              Primer Apellido
-            </label>
+            <label className="block text-sm font-medium text-gray-600">Primer Apellido</label>
             <input
               type="text"
               name="apellido_1"
@@ -154,9 +122,7 @@ export default function FormCreateUpdate({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-600">
-              Segundo Apellido
-            </label>
+            <label className="block text-sm font-medium text-gray-600">Segundo Apellido</label>
             <input
               type="text"
               name="apellido_2"
@@ -167,11 +133,8 @@ export default function FormCreateUpdate({
           </div>
         </div>
 
-        {/* Sexo */}
         <div>
-          <label className="block text-sm font-medium text-gray-600">
-            Sexo
-          </label>
+          <label className="block text-sm font-medium text-gray-600">Sexo</label>
           <select
             name="sexo"
             value={formData.sexo}
@@ -185,11 +148,8 @@ export default function FormCreateUpdate({
           </select>
         </div>
 
-        {/* Fecha de Nacimiento */}
         <div>
-          <label className="block text-sm font-medium text-gray-600">
-            Fecha de Nacimiento
-          </label>
+          <label className="block text-sm font-medium text-gray-600">Fecha de Nacimiento</label>
           <input
             type="date"
             name="fecha_de_nacimiento"
@@ -201,20 +161,22 @@ export default function FormCreateUpdate({
         </div>
 
         <div className="flex gap-4">
-          <button
-            type="submit"
-            onClick={handleCreate} // Asigna la función correcta
-            className="w-full bg-green-500 text-white p-2 rounded-md hover:bg-green-600"
-          >
-            Crear
-          </button>
-          <button
-            type="button"
-            onClick={handleUpdate} // Asigna la función correcta
-            className="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600"
-          >
-            Actualizar
-          </button>
+          {!isUpdating && (
+            <button
+              type="submit"
+              className="w-full bg-green-500 text-white p-2 rounded-md hover:bg-green-600"
+            >
+              Crear
+            </button>
+          )}
+          {isUpdating && (
+            <button
+              type="submit"
+              className="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600"
+            >
+              Actualizar
+            </button>
+          )}
         </div>
       </form>
     </div>
