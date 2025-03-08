@@ -1,40 +1,48 @@
 import { create } from 'zustand';
 import { Persona, Register } from '../interface/persona.interface';
-import { actualizarPersona, RegistrarPersona } from '../services/persona.service';
+import { ActualizarPersona, ConsultarUsuario, RegistrarPersona } from '../services/persona.service';
 
 interface usePersona {
   persona: Persona[];
   crear_persona: (data: Register) => Promise<void>;
-  update_persona: (data: Register) => Promise<void>;
+  Consultar_persona: () => Promise<void>;
+  actualizar_persona: (codigo: number, data: Partial<Register>) => Promise<void>;
 }
 
 
 export const usePersonaStore = create<usePersona>((set) => ({
   persona: [],
+  Consultar_persona: async () => {
+    try {
+      const response = await ConsultarUsuario();
+      const consultar_persona: Persona[] = response.data;
+      set(() => ({ persona: consultar_persona })); // Asegurarse de que persona recibe un array válido
+    } catch (error) {
+      console.error("Error al consultar usuario:", error);
+    }
+  },
 
   crear_persona: async (data: Register) => {
     try {
       await RegistrarPersona(data);
-      set((state) => ({
-        persona: [...state.persona, data], // Agregar la nueva persona al estado
-      }));
-      console.log("Persona creada");
+      
+      console.log("Persona creada con exito");
     } catch (error) {
       console.error("Error al crear usuario:", error);
     }
   },
 
-  update_persona: async (data: Register) => {
+  actualizar_persona: async (codigo: number, data: Partial<Register>) => {
     try {
-      await actualizarPersona(data);
-      set((state) => ({
-        persona: state.persona.map((p) => (p.id === data.id ? data : p)), // Reemplaza la persona actualizada en la lista
-      }));
-      console.log("Persona actualizada");
+      await ActualizarPersona(codigo, data);
+      console.log("Persona actualizada con éxito");
     } catch (error) {
       console.error("Error al actualizar usuario:", error);
     }
   },
+
+ 
+  
 }));
 
 

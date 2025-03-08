@@ -1,212 +1,101 @@
-import { useState, useEffect } from "react";
 import { usePersonaStore } from "./stora/persona";
-import { Register } from "./interface/persona.interface";
+import { Persona, Register } from "./interface/persona.interface";
+import { useForm } from "./hook/useform";
+import { useState } from "react";
 
-export interface FormData {
-  tipo_id: string;
-  id: string;
-  apellido_1: string;
-  apellido_2: string;
-  nombre_1: string;
-  nombre_2: string;
-  sexo: string;
-  fecha_de_nacimiento: string;
-}
+function Registrar() {
+  const { crear_persona, actualizar_persona, persona, Consultar_persona } = usePersonaStore();
+  const [codigo, setCodigo] = useState<number | null>(null); // Estado para actualizar
+  const { form, handleChange, setForm } = useForm<Partial<Register>>({});
 
-interface FormCreateUpdateProps {
-  initialData?: FormData;
-}
-
-export default function FormCreateUpdate({
-  initialData,
-}: FormCreateUpdateProps) {
-  const { crear_persona, update_persona } = usePersonaStore(); // Usa el store
-
-  const defaultData: FormData = {
-    tipo_id: "",
-    id: "",
-    nombre_1: "",
-    nombre_2: "",
-    apellido_1: "",
-    apellido_2: "",
-    sexo: "",
-    fecha_de_nacimiento: "",
-  };
-
-  const [formData, setFormData] = useState<FormData>(
-    initialData || defaultData
-  );
-  const [isUpdating, setIsUpdating] = useState<boolean>(!!initialData);
-
-  useEffect(() => {
-    if (initialData) {
-      setFormData(initialData);
-      setIsUpdating(true);
-    }
-  }, [initialData]);
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Función para enviar formulario
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const personaData: Register = { ...formData };
 
     try {
-      if (isUpdating) {
-        await update_persona(personaData);
-        alert("Registro actualizado correctamente");
+      if (codigo) {
+        await actualizar_persona(codigo, form);
+        console.log("Persona actualizada");
       } else {
-        await crear_persona(personaData);
-        alert("Registro creado con éxito");
+        await crear_persona(form as Register);
+        console.log("Persona registrada");
       }
+
+      // Resetear estado después de la actualización o registro
+      setCodigo(null);
+      setForm({});
     } catch (error) {
       console.error("Error en el registro:", error);
-      alert("Ocurrió un error al procesar la solicitud.");
     }
+  };
+
+  // Función para cargar datos en el formulario al hacer clic en "Editar"
+  const handleEditar = (persona: Persona) => {
+    setCodigo(persona.codigo);
+    setForm({
+      tipo_id: persona.tipo_id,
+      id: persona.id,
+      apellido_1: persona.apellido_1,
+      apellido_2: persona.apellido_2,
+      nombre_1: persona.nombre_1,
+      nombre_2: persona.nombre_2,
+      sexo: persona.sexo,
+      fecha_de_nacimiento: persona.fecha_de_nacimiento,
+    });
   };
 
   return (
-    <div className="max-w-lg mx-auto mt-10 p-6 bg-white shadow-md rounded-lg">
-      <h2 className="text-center text-xl font-semibold text-gray-700">
-        {isUpdating ? "Actualizar Registro" : "Crear Registro"}
-      </h2>
-      <form onSubmit={handleSubmit} className="mt-4 space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-600">
-            Tipo de Identificación
-          </label>
-          <select
-            name="tipo_id"
-            value={formData.tipo_id}
-            onChange={handleChange}
-            className="w-full mt-1 p-2 border rounded-md"
-            required
-          >
-            <option value="">Seleccione el documento</option>
-            <option value="Cedula">Cédula</option>
-            <option value="Tarjeta_identidad">Tarjeta de Identidad</option>
-          </select>
-        </div>
+    <div className="container">
+      <h2>{codigo ? "Actualizar Persona" : "Registrar Persona"}</h2>
+      <form onSubmit={handleSubmit}>
+        <label>Tipo de Identificación</label>
+        <select name="tipo_id" value={form.tipo_id || ""} onChange={handleChange}>
+          <option value="">Seleccione el documento</option>
+          <option value="Cedula">Cédula</option>
+          <option value="Tarjeta_identidad">Tarjeta de Identidad</option>
+        </select>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-600">ID</label>
-          <input
-            type="text"
-            name="id"
-            value={formData.id}
-            onChange={handleChange}
-            className="w-full mt-1 p-2 border rounded-md"
-            required
-          />
-        </div>
+        <label>Identificación</label>
+        <input type="text" name="id" value={form.id || ""} onChange={handleChange} />
 
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-600">
-              Primer Nombre
-            </label>
-            <input
-              type="text"
-              name="nombre_1"
-              value={formData.nombre_1}
-              onChange={handleChange}
-              className="w-full mt-1 p-2 border rounded-md"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-600">
-              Segundo Nombre
-            </label>
-            <input
-              type="text"
-              name="nombre_2"
-              value={formData.nombre_2}
-              onChange={handleChange}
-              className="w-full mt-1 p-2 border rounded-md"
-            />
-          </div>
-        </div>
+        <label>Primer Nombre</label>
+        <input type="text" name="nombre_1" value={form.nombre_1 || ""} onChange={handleChange} />
 
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-600">
-              Primer Apellido
-            </label>
-            <input
-              type="text"
-              name="apellido_1"
-              value={formData.apellido_1}
-              onChange={handleChange}
-              className="w-full mt-1 p-2 border rounded-md"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-600">
-              Segundo Apellido
-            </label>
-            <input
-              type="text"
-              name="apellido_2"
-              value={formData.apellido_2}
-              onChange={handleChange}
-              className="w-full mt-1 p-2 border rounded-md"
-            />
-          </div>
-        </div>
+        <label>Segundo Nombre</label>
+        <input type="text" name="nombre_2" value={form.nombre_2 || ""} onChange={handleChange} />
 
-        <div>
-          <label className="block text-sm font-medium text-gray-600">
-            Sexo
-          </label>
-          <select
-            name="sexo"
-            value={formData.sexo}
-            onChange={handleChange}
-            className="w-full mt-1 p-2 border rounded-md"
-            required
-          >
-            <option value="">Seleccione el sexo</option>
-            <option value="Masculino">Masculino</option>
-            <option value="Femenino">Femenino</option>
-          </select>
-        </div>
+        <label>Primer Apellido</label>
+        <input type="text" name="apellido_1" value={form.apellido_1 || ""} onChange={handleChange} />
 
-        <div>
-          <label className="block text-sm font-medium text-gray-600">
-            Fecha de Nacimiento
-          </label>
-          <input
-            type="date"
-            name="fecha_de_nacimiento"
-            value={formData.fecha_de_nacimiento}
-            onChange={handleChange}
-            className="w-full mt-1 p-2 border rounded-md"
-            required
-          />
-        </div>
+        <label>Segundo Apellido</label>
+        <input type="text" name="apellido_2" value={form.apellido_2 || ""} onChange={handleChange} />
 
-        <button
-          type="submit"
-          onClick={() => setIsUpdating(false)}
-          className="w-full bg-green-500 text-white p-2 rounded-md hover:bg-green-600"
-        >
-          Registrar
-        </button>
+        <label>Sexo</label>
+        <select name="sexo" value={form.sexo || ""} onChange={handleChange}>
+          <option value="">Seleccione el sexo</option>
+          <option value="Masculino">Masculino</option>
+          <option value="Femenino">Femenino</option>
+        </select>
 
-        <button
-          type="submit"
-          onClick={() => setIsUpdating(true)}
-          className="w-full bg-yellow-500 text-white p-2 rounded-md hover:bg-yellow-600"
-        >
-          Actualizar
-        </button>
+        <label>Fecha de Nacimiento</label>
+        <input type="date" name="fecha_de_nacimiento" value={form.fecha_de_nacimiento || ""} onChange={handleChange} />
+
+        <button type="submit">{codigo ? "Actualizar" : "Registrar"}</button>
       </form>
+
+      {/* Listado de personas con opción para editar */}
+      <h3>Personas Registradas</h3>
+      <button onClick={Consultar_persona}>Actualizar Lista</button>
+      <ul>
+        {persona.map((p) => (
+          <li key={p.codigo}>
+            {p.nombre_1} {p.apellido_1} {p.sexo}
+            <button onClick={() => handleEditar(p)}>Editar</button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
+
+export default Registrar;
